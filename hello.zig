@@ -1,5 +1,6 @@
 const std = @import("std");
 const json = std.json;
+const stdout = std.io.getStdOut().writer();
 const payload =
     \\{
     \\    "vals": {
@@ -25,4 +26,5 @@ pub fn main() !void {
         @compileError("only up to 50 supported");
     }
     std.log.info("up={d}", .{config.uptime});
+    try stdout.print("Hello, {s}!\n", .{"world"});
 }
