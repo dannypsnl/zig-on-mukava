@@ -3,7 +3,7 @@ const expect = std.testing.expect;
 
 pub const VgaColor = enum(u8) { Black, Blue, Green, Cyan, Red, Magenta, Brown, LightGrey, DarkGrey, LightBlue, LightGreen, LightCyan, LightRed, LightMagenta, LightBrown, White };
 
-pub fn vga_entry_color(fg: VgaColor, bg: VgaColor) u8 {
+fn vga_entry_color(fg: VgaColor, bg: VgaColor) u8 {
     return @enumToInt(fg) | (@enumToInt(bg) << 4);
 }
 fn vga_entry(uc: u8, color: u8) u16 {
@@ -31,8 +31,8 @@ pub const terminal = struct {
         }
     }
 
-    pub fn setColor(new_color: u8) void {
-        color = new_color;
+    pub fn setColor(fg: VgaColor, bg: VgaColor) void {
+        color = vga_entry_color(fg, bg);
     }
 
     fn putCharAt(c: u8, new_color: u8, x: usize, y: usize) void {

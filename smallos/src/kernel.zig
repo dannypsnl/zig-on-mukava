@@ -39,8 +39,8 @@ pub fn panic(msg: []const u8, _: ?*builtin.StackTrace) noreturn {
 fn kmain() void {
     terminal.initialize();
     terminal.write("Hello, ");
-    terminal.setColor(vga.vga_entry_color(VgaColor.Black, VgaColor.Red));
+    terminal.setColor(VgaColor.Black, VgaColor.Red);
     terminal.write("Kernel");
-    terminal.setColor(vga.vga_entry_color(VgaColor.LightGrey, VgaColor.Black));
+    terminal.setColor(VgaColor.LightGrey, VgaColor.Black);
     terminal.write(" World!");
 }
