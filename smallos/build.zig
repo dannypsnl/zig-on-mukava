@@ -7,7 +7,7 @@ const CrossTarget = std.zig.CrossTarget;
 pub fn build(b: *Builder) void {
     const mode = b.standardReleaseOptions();
     const target = CrossTarget{
-        .cpu_arch = std.Target.Cpu.Arch.i386,
+        .cpu_arch = std.Target.Cpu.Arch.x86_64,
         .os_tag = std.Target.Os.Tag.freestanding,
         .abi = std.Target.Abi.none,
     };
