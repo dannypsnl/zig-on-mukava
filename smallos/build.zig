@@ -19,7 +19,7 @@ pub fn build(b: *Builder) void {
 
     const run_step = b.step("run", "Run up kernel");
     run_step.dependOn(&exe.step);
-    const cmd = b.addSystemCommand(&[_][]const u8{ "qemu-system-i386", "-kernel" });
+    const cmd = b.addSystemCommand(&[_][]const u8{ "qemu-system-x86_64", "-kernel" });
     cmd.addArtifactArg(exe);
     run_step.dependOn(&cmd.step);
 
