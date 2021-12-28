@@ -1,6 +1,7 @@
 const builtin = @import("std").builtin;
 const vga = @import("./vga.zig");
 const terminal = vga.terminal;
+const VgaColor = vga.VgaColor;
 
 const MultiBoot = packed struct {
     magic: i32,
@@ -37,5 +38,9 @@ pub fn panic(msg: []const u8, _: ?*builtin.StackTrace) noreturn {
 
 fn kmain() void {
     terminal.initialize();
-    terminal.write("Hello, Kernel World!");
+    terminal.write("Hello, ");
+    terminal.setColor(vga.vga_entry_color(VgaColor.Black, VgaColor.Red));
+    terminal.write("Kernel");
+    terminal.setColor(vga.vga_entry_color(VgaColor.LightGrey, VgaColor.Black));
+    terminal.write(" World!");
 }

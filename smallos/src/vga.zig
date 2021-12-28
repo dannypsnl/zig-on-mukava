@@ -1,9 +1,9 @@
 const std = @import("std");
 const expect = std.testing.expect;
 
-const VgaColor = enum(u8) { Black, Blue, Green, Cyan, Red, Magenta, Brown, LightGrey, DarkGrey, LightBlue, LightGreen, LightCyan, LightRed, LightMagenta, LightBrown, White };
+pub const VgaColor = enum(u8) { Black, Blue, Green, Cyan, Red, Magenta, Brown, LightGrey, DarkGrey, LightBlue, LightGreen, LightCyan, LightRed, LightMagenta, LightBrown, White };
 
-fn vga_entry_color(fg: VgaColor, bg: VgaColor) u8 {
+pub fn vga_entry_color(fg: VgaColor, bg: VgaColor) u8 {
     return @enumToInt(fg) | (@enumToInt(bg) << 4);
 }
 fn vga_entry(uc: u8, color: u8) u16 {
@@ -31,7 +31,7 @@ pub const terminal = struct {
         }
     }
 
-    fn setColor(new_color: u8) void {
+    pub fn setColor(new_color: u8) void {
         color = new_color;
     }
 
