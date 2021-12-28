@@ -19,7 +19,7 @@ pub const terminal = struct {
 
     var color = vga_entry_color(VgaColor.LightGrey, VgaColor.Black);
 
-    const buffer = @intToPtr([*]volatile u16, 0xB8000);
+    const buffer = @intToPtr([*]volatile u16, 0xb8000);
 
     pub fn initialize() void {
         var y: usize = 0;
