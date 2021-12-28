@@ -1,5 +1,6 @@
 const std = @import("std");
 const builtin = @import("builtin");
+const deps = @import("deps.zig");
 const Builder = std.build.Builder;
 const CrossTarget = std.zig.CrossTarget;
 
@@ -12,6 +13,7 @@ pub fn build(b: *Builder) void {
     };
 
     const exe = b.addExecutable("kernel.bin", "src/kernel.zig");
+    deps.addAllTo(exe);
     exe.setBuildMode(mode);
     exe.setTarget(target);
     exe.setLinkerScriptPath(.{ .path = "./linker.ld" });
