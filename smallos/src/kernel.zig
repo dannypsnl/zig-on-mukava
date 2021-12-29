@@ -1,6 +1,5 @@
 const builtin = @import("std").builtin;
 const vga = @import("./vga.zig");
-const interrupt = @import("./interrupt.zig");
 const terminal = vga.terminal;
 const VgaColor = vga.VgaColor;
 
@@ -24,13 +23,7 @@ export var multiboot align(4) linksection(".multiboot") = MultiBoot{
 export var stack_bytes: [16 * 1024]u8 align(16) linksection(".bss") = undefined;
 const stack_bytes_slice = stack_bytes[0..];
 
-fn init() void {
-    interrupt.init_idt();
-}
-
 export fn _start() callconv(.Naked) noreturn {
-    init();
-
     @call(.{ .stack = stack_bytes_slice }, kmain, .{});
 
     while (true) {}

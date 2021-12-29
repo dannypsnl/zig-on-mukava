@@ -1,19 +1,17 @@
 const std = @import("std");
 const builtin = @import("builtin");
-const deps = @import("deps.zig");
 const Builder = std.build.Builder;
 const CrossTarget = std.zig.CrossTarget;
 
 pub fn build(b: *Builder) void {
     const mode = b.standardReleaseOptions();
     const target = CrossTarget{
-        .cpu_arch = std.Target.Cpu.Arch.x86_64,
+        .cpu_arch = std.Target.Cpu.Arch.i386,
         .os_tag = std.Target.Os.Tag.freestanding,
         .abi = std.Target.Abi.none,
     };
 
     const exe = b.addExecutable("kernel.bin", "src/kernel.zig");
-    deps.addAllTo(exe);
     exe.setBuildMode(mode);
     exe.setTarget(target);
     exe.setLinkerScriptPath(.{ .path = "./linker.ld" });
@@ -21,7 +19,7 @@ pub fn build(b: *Builder) void {
 
     const run_step = b.step("run", "Run up kernel");
     run_step.dependOn(&exe.step);
-    const cmd = b.addSystemCommand(&[_][]const u8{ "qemu-system-x86_64", "-kernel" });
+    const cmd = b.addSystemCommand(&[_][]const u8{ "qemu-system-i386", "-kernel" });
     cmd.addArtifactArg(exe);
     run_step.dependOn(&cmd.step);
 
