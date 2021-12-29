@@ -105,13 +105,42 @@ fn idt_desc_init() void {
         idt[i].setHandler(IDT_DESC_ATTR_DPL0, intr_entry_table[i]);
         i += 1;
     }
-    terminal.write("idt desc init done\n");
+    terminal.write("IDT: idt_desc_init done\n");
+}
+
+fn outb(port: u16, data: u8) void {
+    asm volatile ("outb %[data], %[port]"
+        :
+        : [data] "{al}" (data),
+          [port] "N{dx}" (port),
+    );
+}
+const PIC_M_CTRL = 0x20;
+const PIC_M_DATA = 0x21;
+const PIC_S_CTRL = 0xa0;
+const PIC_S_DATA = 0xa1;
+fn pic_init() void {
+    // init main board
+    outb(PIC_M_CTRL, 0x11);
+    outb(PIC_M_DATA, 0x20);
+    outb(PIC_M_DATA, 0x04);
+    outb(PIC_M_DATA, 0x01);
+    // init sub board
+    outb(PIC_S_CTRL, 0x11);
+    outb(PIC_S_DATA, 0x28);
+    outb(PIC_S_DATA, 0x02);
+    outb(PIC_S_DATA, 0x01);
+    // open main board IR0
+    outb(PIC_M_DATA, 0xfe);
+    outb(PIC_S_DATA, 0xff);
+    terminal.write("IDT: pic_init done\n");
 }
 
 pub fn init() void {
     terminal.write("IDT: interrupt descriptor table init\n");
 
     idt_desc_init();
+    pic_init();
     var idt_operand: u32 = (@sizeOf(@TypeOf(idt)) - 1) | (@ptrToInt(&idt) << 16);
     asm volatile ("lidt (%[idt_operand])"
         :
