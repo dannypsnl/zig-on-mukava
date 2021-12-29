@@ -141,7 +141,7 @@ pub fn init() void {
 
     idt_desc_init();
     pic_init();
-    var idt_operand: u32 = (@sizeOf(@TypeOf(idt)) - 1) | (@ptrToInt(&idt) << 16);
+    const idt_operand: u64 = (@sizeOf(@TypeOf(idt)) - 1) | (@ptrToInt(&idt) << 16);
     asm volatile ("lidt (%[idt_operand])"
         :
         : [idt_operand] "r" (idt_operand),
