@@ -36,6 +36,7 @@ export fn _start() callconv(.Naked) noreturn {
     init();
     @call(.{ .stack = stack_bytes_slice }, kmain, .{});
 
+    asm volatile ("int3");
     while (true) {}
 }
 

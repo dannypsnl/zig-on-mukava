@@ -1,29 +1,20 @@
 const terminal = @import("./vga.zig").terminal;
 
-const GateDesc = struct {
+const IdtEntry = struct {
     func_offset_low_word: u16,
     selector: u16,
     dcount: u8,
     attribute: u8,
     func_offset_high_word: u16,
-    pub fn missing() GateDesc {
-        return .{
-            .func_offset_low_word = 0,
-            .selector = 0,
-            .dcount = 0,
-            .attribute = 0,
-            .func_offset_high_word = 0,
-        };
-    }
-    pub fn setHandler(self: *GateDesc, attr: u8, handler: HandlerFunc) void {
-        const handler_ptr = @truncate(u32, @ptrToInt(&handler));
+    pub fn setHandler(self: *IdtEntry, attr: u8, handler: HandlerFunc) void {
+        const handler_ptr = @ptrToInt(handler);
         // zig fmt: off
         self.* = .{
-            .func_offset_low_word = @truncate(u16, handler_ptr & 0x0000FFFF),
+            .func_offset_low_word = @truncate(u16, handler_ptr),
             .selector = SELECTOR_K_CODE,
             .dcount = 0,
             .attribute = attr,
-            .func_offset_high_word = @truncate(u16, (handler_ptr & 0xFFFF0000) >> 16)
+            .func_offset_high_word = @truncate(u16, handler_ptr >> 16)
         };
         // zig fmt: on
     }
@@ -38,8 +29,14 @@ const RPL0 = 0;
 const TI_GDT = 0;
 const SELECTOR_K_CODE = ((1 << 3) + (TI_GDT << 2) + RPL0);
 
-var idt: [IDT_DESC_CNT]GateDesc = [_]GateDesc{
-    GateDesc.missing(),
+var idt_entries: [IDT_DESC_CNT]IdtEntry = [_]IdtEntry{
+    .{
+        .func_offset_low_word = 0,
+        .selector = 0,
+        .dcount = 0,
+        .attribute = 0,
+        .func_offset_high_word = 0,
+    },
 } ** IDT_DESC_CNT;
 
 const InterruptStackFrame = extern struct {
@@ -58,51 +55,16 @@ const InterruptStackFrame = extern struct {
     /// The stack segment descriptor at the time of the interrupt (often zero in 64-bit mode).
     stack_segment: u32,
 };
-const HandlerFunc = fn (interrupt_stack_frame: InterruptStackFrame) callconv(.Interrupt) void;
-const intr_entry_table: [IDT_DESC_CNT]HandlerFunc = [IDT_DESC_CNT]HandlerFunc{
-    breakpoint_handler,
-    breakpoint_handler,
-    breakpoint_handler,
-    breakpoint_handler,
-    breakpoint_handler,
-    breakpoint_handler,
-    breakpoint_handler,
-    breakpoint_handler,
-    breakpoint_handler,
-    breakpoint_handler,
-    breakpoint_handler,
-    breakpoint_handler,
-    breakpoint_handler,
-    breakpoint_handler,
-    breakpoint_handler,
-    breakpoint_handler,
-    breakpoint_handler,
-    breakpoint_handler,
-    breakpoint_handler,
-    breakpoint_handler,
-    breakpoint_handler,
-    breakpoint_handler,
-    breakpoint_handler,
-    breakpoint_handler,
-    breakpoint_handler,
-    breakpoint_handler,
-    breakpoint_handler,
-    breakpoint_handler,
-    breakpoint_handler,
-    breakpoint_handler,
-    breakpoint_handler,
-    breakpoint_handler,
-    breakpoint_handler,
-};
+const HandlerFunc = fn () callconv(.Interrupt) void;
 
-fn breakpoint_handler(_: InterruptStackFrame) callconv(.Interrupt) void {
-    terminal.write("EXCEPTION: BREAKPOINT\n");
+fn general_handler() callconv(.Interrupt) void {
+    terminal.write("EXCEPTION\n");
 }
 
 fn idt_desc_init() void {
     var i: usize = 0;
     while (i < IDT_DESC_CNT) {
-        idt[i].setHandler(IDT_DESC_ATTR_DPL0, intr_entry_table[i]);
+        idt_entries[i].setHandler(IDT_DESC_ATTR_DPL0, general_handler);
         i += 1;
     }
     terminal.write("IDT: idt_desc_init done\n");
@@ -136,17 +98,27 @@ fn pic_init() void {
     terminal.write("IDT: pic_init done\n");
 }
 
+const IdtPtr = packed struct {
+    /// The total size of the IDT (minus 1) in bytes.
+    limit: u16 = @sizeOf(IdtEntry) * IDT_DESC_CNT - 1,
+    /// The base address where the IDT is located.
+    base: u32,
+};
+
 pub fn init() void {
     terminal.write("IDT: interrupt descriptor table init\n");
 
     idt_desc_init();
     pic_init();
-    const idt_operand: u64 = (@sizeOf(@TypeOf(idt)) - 1) | (@ptrToInt(&idt) << 16);
-    asm volatile ("lidt (%[idt_operand])"
-        :
-        : [idt_operand] "r" (idt_operand),
-        : "memory"
-    );
+    var idt_ptr: IdtPtr = IdtPtr{ .base = @ptrToInt(&idt_entries) };
+    lidt(&idt_ptr);
 
     terminal.write("IDT: interrupt descriptor table init done\n");
+}
+
+fn lidt(idt_ptr: *const IdtPtr) void {
+    asm volatile ("lidt (%%eax)"
+        :
+        : [idt_ptr] "{eax}" (idt_ptr),
+    );
 }
