@@ -35,17 +35,24 @@ pub const terminal = struct {
         color = vga_entry_color(fg, bg);
     }
 
-    fn putCharAt(c: u8, new_color: u8, x: usize, y: usize) void {
-        const index = y * VGA_WIDTH + x;
-        buffer[index] = vga_entry(c, new_color);
+    fn newline() void {
+        column = 0;
+        row += 1;
     }
-
+    fn putCharAt(c: u8, new_color: u8, x: usize, y: usize) void {
+        switch (c) {
+            '\n' => newline(),
+            else => {
+                const index = y * VGA_WIDTH + x;
+                buffer[index] = vga_entry(c, new_color);
+            },
+        }
+    }
     fn putChar(c: u8) void {
         putCharAt(c, color, column, row);
         column += 1;
         if (column == VGA_WIDTH) {
-            column = 0;
-            row += 1;
+            newline();
             if (row == VGA_HEIGHT)
                 row = 0;
         }
