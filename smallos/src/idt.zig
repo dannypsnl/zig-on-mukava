@@ -37,22 +37,6 @@ var idt_entries: [IDT_DESC_CNT]IdtEntry = [_]IdtEntry{
     },
 } ** IDT_DESC_CNT;
 
-const InterruptStackFrame = extern struct {
-    /// This value points to the instruction that should be executed when the interrupt
-    /// handler returns. For most interrupts, this value points to the instruction immediately
-    /// following the last executed instruction. However, for some exceptions (e.g., page faults),
-    /// this value points to the faulting instruction, so that the instruction is restarted on
-    /// return.
-    instruction_pointer: u32,
-    /// The code segment selector, padded with zeros.
-    code_segment: u32,
-    /// The flags register before the interrupt handler was invoked.
-    cpu_flags: u32,
-    /// The stack pointer at the time of the interrupt.
-    stack_pointer: u32,
-    /// The stack segment descriptor at the time of the interrupt (often zero in 64-bit mode).
-    stack_segment: u32,
-};
 const HandlerFunc = fn () callconv(.Interrupt) void;
 
 fn general_handler() callconv(.Interrupt) void {
