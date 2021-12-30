@@ -8,15 +8,13 @@ const IdtEntry = struct {
     func_offset_high_word: u16,
     pub fn setHandler(self: *IdtEntry, attr: u8, handler: HandlerFunc) void {
         const handler_ptr = @ptrToInt(handler);
-        // zig fmt: off
         self.* = .{
             .func_offset_low_word = @truncate(u16, handler_ptr),
             .selector = SELECTOR_K_CODE,
             .dcount = 0,
             .attribute = attr,
-            .func_offset_high_word = @truncate(u16, handler_ptr >> 16)
+            .func_offset_high_word = @truncate(u16, handler_ptr >> 16),
         };
-        // zig fmt: on
     }
 };
 
