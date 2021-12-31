@@ -16,7 +16,7 @@ pub fn build(b: *std.build.Builder) void {
     exe.setBuildMode(mode);
     exe.setBuildMode(.ReleaseSmall); // ReleaseSafe or Fast tend to unroll loops and seem to reorder volatile writes?
     exe.bundle_compiler_rt = false;
-    exe.setLinkerScriptPath(.{ .path = "src/linker.ld" });
+    exe.setLinkerScriptPath(.{ .path = deps.dirs._ie76bs50j4tl ++ "/src/linker.ld" });
     exe.install();
 
     const tty = b.option(
