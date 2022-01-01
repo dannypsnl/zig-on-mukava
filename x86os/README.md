@@ -1,4 +1,4 @@
-# smallos
+# x86os
 
 ```shell
 # build kernel & run

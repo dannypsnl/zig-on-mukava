@@ -1,4 +1,4 @@
-# poikaos
+# armos
 
 OS aarch64 for raspberry Pi 3
 
