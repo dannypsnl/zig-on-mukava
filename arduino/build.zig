@@ -10,7 +10,12 @@ pub fn build(b: *std.build.Builder) void {
         .abi = .none,
     };
 
-    const exe = b.addExecutable("arduino", "src/main.zig");
+    const exe_name = b.option(
+        []const u8,
+        "name",
+        "Specify the example to build. Defaults to src/blink.zig",
+    ) orelse "src/blink.zig";
+    const exe = b.addExecutable(std.mem.trimRight(u8, std.fs.path.basename(exe_name), ".zig"), exe_name);
     deps.addAllTo(exe);
     exe.setTarget(uno);
     exe.setBuildMode(mode);
