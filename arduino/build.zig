@@ -2,7 +2,6 @@ const std = @import("std");
 const deps = @import("deps.zig");
 
 pub fn build(b: *std.build.Builder) !void {
-    const mode = b.standardReleaseOptions();
     const uno = std.zig.CrossTarget{
         .cpu_arch = .avr,
         .cpu_model = .{ .explicit = &std.Target.avr.cpu.atmega328p },
@@ -18,7 +17,6 @@ pub fn build(b: *std.build.Builder) !void {
     const exe = b.addExecutable(std.mem.trimRight(u8, std.fs.path.basename(exe_name), ".zig"), exe_name);
     deps.addAllTo(exe);
     exe.setTarget(uno);
-    exe.setBuildMode(mode);
     exe.setBuildMode(.ReleaseSmall); // ReleaseSafe or Fast tend to unroll loops and seem to reorder volatile writes?
     exe.bundle_compiler_rt = false;
     exe.setLinkerScriptPath(.{ .path = deps.dirs._ie76bs50j4tl ++ "/src/linker.ld" });
