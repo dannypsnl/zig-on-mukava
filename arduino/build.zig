@@ -30,10 +30,14 @@ pub fn build(b: *std.build.Builder) !void {
         "Specify the port to which the Arduino is connected (defaults to /dev/ttyACM0)",
     ) orelse "/dev/ttyACM0";
 
-    const alloc = std.heap.page_allocator;
     const bin_path = b.getInstallPath(exe.install_step.?.dest_dir, exe.out_filename);
-    const flash = try std.fmt.allocPrint(alloc, "-Uflash:w:{s}:e", .{bin_path});
-    defer alloc.free(flash);
+    const flash = blk: {
+        var tmp = std.ArrayList(u8).init(b.allocator);
+        try tmp.appendSlice("-Uflash:w:");
+        try tmp.appendSlice(bin_path);
+        try tmp.appendSlice(":e");
+        break :blk tmp.toOwnedSlice();
+    };
     const avrdude = b.addSystemCommand(&.{
         "avrdude",
         "-carduino",
