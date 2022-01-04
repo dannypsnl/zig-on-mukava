@@ -1,7 +1,7 @@
 const std = @import("std");
 const deps = @import("deps.zig");
 
-pub fn build(b: *std.build.Builder) void {
+pub fn build(b: *std.build.Builder) !void {
     const mode = b.standardReleaseOptions();
     const uno = std.zig.CrossTarget{
         .cpu_arch = .avr,
@@ -30,8 +30,10 @@ pub fn build(b: *std.build.Builder) void {
         "Specify the port to which the Arduino is connected (defaults to /dev/ttyACM0)",
     ) orelse "/dev/ttyACM0";
 
+    const alloc = std.heap.page_allocator;
     const bin_path = b.getInstallPath(exe.install_step.?.dest_dir, exe.out_filename);
-    const upload = b.step("upload", "Upload the code to an Arduino device using avrdude");
+    const flash = try std.fmt.allocPrint(alloc, "-Uflash:w:{s}:e", .{bin_path});
+    defer alloc.free(flash);
     const avrdude = b.addSystemCommand(&.{
         "avrdude",
         "-carduino",
@@ -39,10 +41,9 @@ pub fn build(b: *std.build.Builder) void {
         "-D",
         "-P",
         tty,
-        "-Uflash:w:",
-        bin_path,
-        ":e",
+        flash,
     });
+    const upload = b.step("upload", "Upload the code to an Arduino device using avrdude");
     upload.dependOn(&avrdude.step);
     avrdude.step.dependOn(&exe.install_step.?.step);
 
