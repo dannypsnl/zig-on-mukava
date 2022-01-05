@@ -1,5 +1,7 @@
 # arduino examples
 
-```
-zig build -Dname=src/blink.zig
+Command example
+
+```shell
+zig build upload -Dtty=/dev/cu.usbmodem112201 -Dname=src/seven-segment-display.zig
 ```
