@@ -30,14 +30,6 @@ fn evenSegWrite(digit: usize) void {
     }
 }
 
-fn count_down() void {
-    comptime var count = 9;
-    inline while (count >= 0) : (count -= 1) {
-        evenSegWrite(count);
-        arduino.cpu.delayMilliseconds(500);
-    }
-}
-
 pub fn main() void {
     arduino.uart.init(arduino.cpu.CPU_FREQ, 115200);
 
@@ -50,7 +42,12 @@ pub fn main() void {
     gpio.setMode(8, .output);
     gpio.setMode(9, .output);
 
-    while (true) {
-        count_down();
+    var count: usize = 9;
+    while (count >= 0) : (count -= 1) {
+        evenSegWrite(count);
+        arduino.cpu.delayMilliseconds(500);
+        if (count == 0) {
+            count = 9;
+        }
     }
 }
