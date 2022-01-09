@@ -1,31 +1,28 @@
 const arduino = @import("arduino");
 const gpio = arduino.gpio;
+const PinState = gpio.PinState;
 
 // Necessary, and has the side effect of pulling in the needed _start method
 pub const panic = arduino.start.panicLogUart;
 
-const seven_seg_digits = [_][7]u8{
-    [_]u8{ 1, 1, 1, 1, 1, 1, 0 }, // = 0
-    [_]u8{ 0, 1, 1, 0, 0, 0, 0 }, // = 1
-    [_]u8{ 1, 1, 0, 1, 1, 0, 1 }, // = 2
-    [_]u8{ 1, 1, 1, 1, 0, 0, 1 }, // = 3
-    [_]u8{ 0, 1, 1, 0, 0, 1, 1 }, // = 4
-    [_]u8{ 1, 0, 1, 1, 0, 1, 1 }, // = 5
-    [_]u8{ 1, 0, 1, 1, 1, 1, 1 }, // = 6
-    [_]u8{ 1, 1, 1, 0, 0, 0, 0 }, // = 7
-    [_]u8{ 1, 1, 1, 1, 1, 1, 1 }, // = 8
-    [_]u8{ 1, 1, 1, 0, 0, 1, 1 }, // = 9
+const seven_seg_digits = [_][7]PinState{
+    [_]PinState{ .high, .high, .high, .high, .high, .high, .low }, // = 0
+    [_]PinState{ .low, .high, .high, .low, .low, .low, .low }, // = 1
+    [_]PinState{ .high, .high, .low, .high, .high, .low, .high }, // = 2
+    [_]PinState{ .high, .high, .high, .high, .low, .low, .high }, // = 3
+    [_]PinState{ .low, .high, .high, .low, .low, .high, .high }, // = 4
+    [_]PinState{ .high, .low, .high, .high, .low, .high, .high }, // = 5
+    [_]PinState{ .high, .low, .high, .high, .high, .high, .high }, // = 6
+    [_]PinState{ .high, .high, .high, .low, .low, .low, .low }, // = 7
+    [_]PinState{ .high, .high, .high, .high, .high, .high, .high }, // = 8
+    [_]PinState{ .high, .high, .high, .low, .low, .high, .high }, // = 9
 };
 
 fn evenSegWrite(digit: usize) void {
     comptime var pin = 2;
     comptime var seg = 0;
     inline while (seg < 7) : (seg += 1) {
-        if (seven_seg_digits[digit][seg] == 1) {
-            gpio.setPin(pin, .high);
-        } else {
-            gpio.setPin(pin, .low);
-        }
+        gpio.setPin(pin, seven_seg_digits[digit][seg]);
         pin += 1;
     }
 }
