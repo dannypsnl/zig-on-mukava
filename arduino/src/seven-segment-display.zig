@@ -33,14 +33,10 @@ fn evenSegWrite(digit: usize) void {
 pub fn main() void {
     arduino.uart.init(arduino.cpu.CPU_FREQ, 115200);
 
-    gpio.setMode(2, .output);
-    gpio.setMode(3, .output);
-    gpio.setMode(4, .output);
-    gpio.setMode(5, .output);
-    gpio.setMode(6, .output);
-    gpio.setMode(7, .output);
-    gpio.setMode(8, .output);
-    gpio.setMode(9, .output);
+    comptime var pin = 2;
+    inline while (pin <= 9) : (pin += 1) {
+        gpio.setMode(pin, .output);
+    }
 
     var count: usize = 9;
     while (count >= 0) : (count -= 1) {
