@@ -1,5 +1,11 @@
 # arduino examples
 
+Get dependencies
+
+```shell
+zigmod fetch
+```
+
 Command example
 
 ```shell
